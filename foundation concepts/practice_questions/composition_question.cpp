@@ -18,7 +18,6 @@
 
 #include <iostream>
 #include <vector>
-#include <iostream>
 using namespace std;
 
 class Song{
@@ -43,7 +42,7 @@ public:
 // Playlist has-a Song.
 
 class Playlist{
-    vector<const Song*> songsInList; // vector to store pointers to original objects 
+    vector<Song> songsInList; // storing the songs in playlist - Shows "has-a" relation between playlist and song
     int totalDuration; 
 
 public:
@@ -53,17 +52,17 @@ public:
     }
 
     void add(const Song& s){
-        songsInList.push_back(&s);
-        totalDuration = totalDuration + s.getSeconds(); //increment the total seconds as the songs get added.
+        songsInList.push_back(s);
+        totalDuration += s.getSeconds(); //increment the total seconds as the songs get added.
     }
 
     int totalSeconds() const{
-            return totalDuration;
+        return totalDuration;
     }
 
     void list() const{
-        for(const Song* song : songsInList){
-            cout << song->getTitle() << endl;
+        for(const Song song : songsInList){
+            cout << song.getTitle() << endl;
         }
     }
 
@@ -77,7 +76,6 @@ int main(){
     Song s1("Interstellar theme", 250);
     Song s2("Inception Theme", 200);
     Song s3("Oppenhimer Theme", 300);
-
 
     Playlist themes;
     themes.add(s1);

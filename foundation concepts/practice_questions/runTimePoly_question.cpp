@@ -62,7 +62,7 @@ void alert(const Notifier& n, const string& msg){
 
 // Incorrent way - cos we're passing in the object by value - meaning it's copy will be created on stack in this function call. 
 // As the Parameter tells the copy is just Notifier type and not Email or Sms notifier.
-// So that cause a runtime error, if this function is called. Caused due to object slicing.
+// So that cause a compile time error, if this function is called. Caused due to object slicing.
 void badAlert(Notifier n, string msg){
     n.send(msg);
 }
