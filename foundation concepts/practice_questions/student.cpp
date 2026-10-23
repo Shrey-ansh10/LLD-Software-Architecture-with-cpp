@@ -31,7 +31,7 @@ class Student{
 
     public:
     Student(){
-        name = "";
+        name = "unknown";
         roll = 0;
         marks = 0;
     }
@@ -42,14 +42,13 @@ class Student{
         this->marks = marks;
     }
 
-    void display(){
+    void display() const{
         cout << "Name of Student : " << name << endl;
         cout << "Roll no. of Student : " << roll << endl;
         cout << "Marks of Student : " << marks << endl;
     }
 
     ~Student(){}
-
 };
 
 int main(){

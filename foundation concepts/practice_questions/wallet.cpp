@@ -11,7 +11,7 @@
     - bool spend(int amount) — if amount is positive and <= balance, subtract and return true; else no change, return false
     - int getBalance() const
     
-    main must: open with 100, add(50), spend(30), print balance (120). Uncommenting w.balance = -5; must not compile.
+    -> main must: open with 100, add(50), spend(30), print balance (120). Uncommenting w.balance = -5; must not compile.
 
     Done when: invalid operations leave the object valid.
 */
@@ -54,12 +54,10 @@ class Wallet{
     }
 
     int getBalance() const{
-        int bal = balance;
-        return bal;
+        // int bal = balance;
+        return balance;
     }
-
 };
-
 
 int main(){
 
