@@ -24,8 +24,6 @@ public:
         cout << "Shape\n";
     }
 
-    
-
     // Always give polymorphic bases a virtual destructor.
     // Otherwise delete through Shape* can skip the derived destructor.
     virtual ~Shape() = default;
