@@ -1,3 +1,4 @@
+#include "vector"
 #include <cmath>
 #include <iostream>
 #include <unordered_map>
@@ -289,22 +290,26 @@ public:
         }
       }
 
-      // get cart total
-      double cartTotal = cart.getCartTotal();
+      // cart total
+      double cartTotal = 0;
+      // cart.getCartTotal(); // not getting it from cart anymore
+      for (CartItem c : cartItems) { // Calculating on the go
+        cartTotal += (c.product.productPrice * c.quantity);
+      }
       cout << "Cart total = " << cartTotal << endl;
 
       // apply respective discount
       double finalPayable = discount.applyDiscount(cartTotal);
       cout << "Final payable amount after discount = " << finalPayable << endl;
 
+      // update inventory - deduct stock
+      for (CartItem c : cartItems) {
+        i.deductStock(c.product.productId, c.quantity);
+      }
+
       // proceed to pay
       if (pay.pay(finalPayable)) {
         cout << "Payment successful. \n Order Placed" << endl;
-
-        // update inventory - if payment successful
-        for (CartItem c : cartItems) {
-          i.deductStock(c.product.productId, c.quantity);
-        }
 
         // print receit
         receipt.generateReceipt(cartItems, cartTotal, finalPayable);
@@ -316,8 +321,15 @@ public:
 
         // exist
         return true;
-      } else {
+      } else { // if payment failed
         cout << "payment unsuccesful. \n Retry later." << endl;
+
+        // update inventory - add back the deducted stock - SOLVED THE PROBELM
+        // WHEN TWO CUSTOMERS DO CHECKOUT AT SAME TIME.
+        for (CartItem c : cartItems) {
+          i.addStock(c.product.productId, c.quantity);
+        }
+
         return false;
       }
 
