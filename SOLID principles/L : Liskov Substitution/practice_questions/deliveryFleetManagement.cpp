@@ -150,3 +150,103 @@ int main(){
 
     prepMotorizedVehicles(fuelBasedVehicle,{10, 15});
 }
+
+
+
+/*
+=====================================================================================================
+Problem 4: Trade-off & Earlier Concept Check — Deep Hierarchies vs. Composition
+=====================================================================================================
+
+The Scenario :
+To fix LSP violations, developers often keep splitting base classes into deeper inheritance trees
+(e.g., Vehicle → MotorizedVehicle → FuelMotorizedVehicle → ...).
+
+Your Task (Conceptual / Short Note)
+
+-----------------------------------------------------------------------------------------------------
+Q1. What happens when a new type comes along that cuts across two branches
+    (e.g., a Hybrid Car that uses both petrol and battery, or an E-Bike that has pedals and a battery)?
+-----------------------------------------------------------------------------------------------------
+
+Ans: Let's address each one of them respectively.
+
+(a) E-Bike :
+    - With the current code, an E-Bike can simply inherit from FuelVehicle and implement its own
+      properties as well (battery + pedals).
+    - But notice: an E-Bike genuinely belongs to TWO branches — the Bicycle/pedal branch AND the
+      electric branch. Inheriting from only one means re-writing (duplicating) the other branch's
+      behavior inside EBike.
+
+(b) Hybrid Car :
+    Option 1 (with the current structure):
+    - The HybridCar class can inherit directly from FuelVehicle and define its own behavior.
+
+    Option 2 (a more structured / hierarchical tree):
+
+        Vehicle -> FueledVehicle -> ElectricFuelVehicle -> ElectricBike, E-Scooter, E-Truck, E-Aeroplane etc.
+                        |
+                        |-> GasFueledVehicle    -> PetrolMotorcycle, PetrolCar, PetrolBike
+                        |
+                        |-> DieselFueledVehicle -> DieselTruck, DieselHelicopter
+
+    - A HybridCar would then need multiple inheritance from ElectricFuelVehicle and GasFueledVehicle.
+    - It also gets messy for variants like plug-in vs. non-plug-in hybrids.
+    - Option 1 is simpler for now, but BOTH options run into the two classic problems below.
+
+(c) The 2 classic problems with cross-cutting types in deep inheritance trees :
+
+    Problem 1 : The Diamond Problem (C++ Multiple Inheritance)
+    - If HybridCar inherits from both ElectricFuelVehicle and GasFueledVehicle, it gets two ambiguous
+      copies of FueledVehicle (and Vehicle):
+
+                      FueledVehicle
+                      /           \
+          ElectricFuelVehicle    GasFueledVehicle
+                      \           /
+                        HybridCar      <-- Which copy of FueledVehicle::startVehicle() does it call?!
+
+    Problem 2 : Class Explosion (Combinatorial Explosion) & Code Duplication
+    - Every time a vehicle combines capabilities from different branches (Pedal + Electric,
+      Petrol + Electric, Diesel + Electric, ...), a strict inheritance tree forces you to either
+      duplicate code across branches or keep creating new combination subclasses.
+
+    => Conclusion: Splitting base classes deeper and deeper to satisfy LSP does not scale once
+       capabilities start to mix.
+
+-----------------------------------------------------------------------------------------------------
+Q2. Using what you learned in foundation concepts/composition.cpp, how can Composition ("has-a") help
+    avoid deep inheritance trees while still keeping your design LSP- and OCP-compliant?
+-----------------------------------------------------------------------------------------------------
+
+Ans:
+(a) The core idea (my intuition) :
+    - Composition, as far as I feel, is the most beautiful thing. All real objects are made of
+      components, so we can use components to build broader classes, which are directly used to make
+      final objects.
+    - This is better than creating objects with everything predefined via inheritance, and then
+      realizing that some object doesn't have one property — which takes the whole inheritance tree
+      to hell.
+
+(b) Example — Hybrid Car :
+    - A hybrid car will definitely have all the basic properties of a Vehicle: it moves, it brakes,
+      it accelerates.
+    - What differs is the power source. So we can have a broader Engine class and a Battery class.
+    - We build the engine as per our custom needs, pick a battery as per our needs, and then construct
+      the HybridCar using these objects as components inside the HybridCar class.
+
+        Vehicle  ──has-a──►  [ Engine ]                         (PetrolMotorcycle)
+        Vehicle  ──has-a──►  [ Battery ]                        (ElectricScooter)
+        Vehicle  ──has-a──►  [ PedalDrive ]                     (Bicycle)
+        Vehicle  ──has-a──►  [ PedalDrive ] + [ Battery ]       (E-Bike)
+        Vehicle  ──has-a──►  [ Engine ] + [ Battery ]           (HybridCar)
+
+(c) How this keeps the design LSP- and OCP-compliant :
+    - Instead of a deep Vehicle inheritance tree, a Vehicle HAS-A propulsion/energy component
+      (Engine, Battery, PedalDrive — or a list of them for a HybridCar / E-Bike).
+    - LSP is preserved : every Vehicle genuinely supports move() without dummy / throwing methods.
+    - OCP is preserved : a new type (HybridCar, EBike, ...) is assembled by combining existing
+      components — no existing vehicle class needs to be modified.
+
+This is kind of what I was thinking about when I was implementing the deliveryFleetManagement program.
+*/
