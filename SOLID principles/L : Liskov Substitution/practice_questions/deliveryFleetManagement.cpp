@@ -39,7 +39,7 @@ public:
 
 class Bicycle : public Vehicle {
 public:
-    void move(){
+    void move() override{
         cout << "Move delivery bicycle" << endl;
     }
 };
@@ -72,9 +72,8 @@ public:
 
     double refuelVehicle(double litersAdded) override {
         // fills petrol
-        if(litersAdded < maxFuelTankCapacity && 
-            litersAdded > 0 && 
-            litersAdded <= maxFuelTankCapacity - currentFuelLevel){
+        if(litersAdded > 0 && 
+            litersAdded + currentFuelLevel <= maxFuelTankCapacity){
             currentFuelLevel += litersAdded;         
         }
         return currentFuelLevel;
@@ -113,7 +112,7 @@ void deployAllVehicles(const vector<Vehicle*>& fleet){
 }
 
 // test refuel mechanism
-void prepMotorizedVehicles(const vector<FuelVehicle*>& motorizedFleet, const vector<double> amount){
+void prepMotorizedVehicles(const vector<FuelVehicle*>& motorizedFleet, const vector<double>& amount){
     if(motorizedFleet.size() != amount.size()) return;
 
     int length = motorizedFleet.size();
