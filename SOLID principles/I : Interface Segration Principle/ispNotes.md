@@ -7,7 +7,79 @@ In simpler terms: **Many small, role-specific interfaces are better than one lar
 
 ---
 
-## 1. The Core Idea: Two Sides of a "Fat Interface"
+## 0. Prerequisite: What is an "Interface" in C++? (And How It Differs from an Abstract Class)
+
+Unlike Java or C#, **C++ does not have a built-in `interface` keyword**. Instead, in C++, an interface is a **strict design pattern/convention** written using a `class` (or `struct`) that acts purely as a **behavioral contract**.
+
+### A. The Anatomy & Rules of a True Interface in C++
+
+```cpp
+class IPrinter {
+public:
+    // 1. Virtual Destructor (MANDATORY!)
+    virtual ~IPrinter() = default;
+
+    // 2. ONLY Pure Virtual Functions (= 0)
+    virtual void print(const std::string& document) const = 0;
+
+    // 3. NO member variables (no state)
+    // 4. NO user-defined constructors needed (no data to initialize)
+};
+```
+
+To write a proper interface in C++, follow these **4 Golden Rules**:
+
+1. **Only Pure Virtual Functions (`virtual ... = 0;`)**:
+   * An interface defines **WHAT** an object can do, never **HOW** it does it. Every method in the contract is declared `virtual` and assigned `= 0` (no body).
+2. **No Member Variables (Zero State)**:
+   * An interface never holds non-static data members (like `int count;` or `string name;`). Keeping it stateless is what prevents the **Diamond Problem** when a class implements multiple interfaces.
+3. **Always Provide a `virtual` Destructor (`virtual ~InterfaceName() = default;`)**:
+   * **Why?** Clients often hold objects via an interface pointer (e.g., `IPrinter*` or `std::unique_ptr<IPrinter>`). If that pointer is deleted and the destructor is **not** `virtual`, C++ will only call `~IPrinter()` and **skip the derived class's destructor** (`~EnterpriseLaserJet()`), causing memory leaks and undefined behavior!
+4. **What About Constructors?**:
+   * You **cannot instantiate** an interface directly (`IPrinter p;` will fail to compile).
+   * Because an interface has no member variables to initialize, you do **not** need to write a constructor for it (the compiler automatically generates an implicit default constructor so derived classes can construct cleanly).
+   * **C++ Rule**: Constructors can **never** be `virtual` (because the virtual table pointer `vptr` hasn't been created yet until the constructor runs!).
+
+---
+
+### B. Interface vs. Abstract Class in C++
+
+In C++ compiler terminology, any class with at least one pure virtual function (`= 0`) is an **Abstract Class**.  
+Therefore: **Every Interface in C++ is an Abstract Class, but NOT every Abstract Class is an Interface!**
+
+| Feature | Pure Interface (e.g., `IPrinter`, `IScanner`) | Abstract Base Class (e.g., `FuelVehicle`, `Document`) |
+| :--- | :--- | :--- |
+| **Purpose** | Defines a pure capability contract (**"Can-Do"** / Role) | Shares common state & partial behavior (**"Is-A"** base) |
+| **Methods** | **100% pure virtual (`= 0`)** — zero method implementations | Mix of pure virtual (`= 0`) AND normal methods with bodies |
+| **Member Variables** | **None** (Completely stateless) | **Allowed** (e.g., `protected: double fuelLevel;`) |
+| **Constructors** | No custom constructors (nothing to initialize) | Has constructors to initialize its own member variables |
+| **Destructor** | `virtual ~IInterface() = default;` | `virtual ~AbstractBase() = default;` |
+| **Multiple Inheritance** | **100% Safe** (A class can implement many interfaces) | **Risky** (Inheriting state from multiple bases causes the Diamond Problem) |
+
+```cpp
+// 1. PURE INTERFACE: Zero state, 100% pure virtual (= 0)
+class IPrintable {
+public:
+    virtual ~IPrintable() = default;
+    virtual void print() const = 0;
+};
+
+// 2. ABSTRACT CLASS: Has state, a constructor, a concrete method, AND a pure virtual method
+class Document {
+protected:
+    std::string author; // <-- Has member variable (state)
+public:
+    Document(const std::string& a) : author(a) {} // <-- Has constructor to init state
+    virtual ~Document() = default;
+
+    std::string getAuthor() const { return author; } // <-- Concrete shared method
+    virtual void render() const = 0;                 // <-- Pure virtual method
+};
+```
+
+---
+
+## 1. The Core Idea of ISP: Two Sides of a "Fat Interface"
 
 When an interface grows too large (a **Fat / Polluted Interface**), it hurts **two** groups of code:
 
