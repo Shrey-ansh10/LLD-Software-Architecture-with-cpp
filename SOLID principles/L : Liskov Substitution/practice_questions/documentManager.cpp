@@ -50,7 +50,7 @@ using namespace std;
 // This is the base class and by default it's read only
 class Document {
 protected:
-    std::string content;
+    std::string content; // this is automatically inherited in the classes which inherit from this class.
 public:
     Document(const std::string& text) : content(text) {}
     virtual ~Document() = default;
@@ -134,7 +134,7 @@ TAKE AWAYS FROM THIS EXERCISE:
 
 2. C++ Mechanics Takeaways (The "How")
     1. protected Members Are Already Inside Every Child Object:
-        - Because std::string content; is protected in Document (line 53), EditableDocument and WordDocument already own that variable.
+        - Because 'std::string content;' is protected in 'Document', 'EditableDocument' and 'WordDocument' already own that variable.
         - Rule of thumb: Never redeclare a parent's member variable in a child class—doing so creates a second, hidden copy (variable shadowing).
 
     2. Constructor Chaining (Child(args) : Parent(args) {}):

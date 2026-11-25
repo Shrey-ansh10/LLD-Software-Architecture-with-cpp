@@ -111,6 +111,14 @@ void deployAllVehicles(const vector<Vehicle*>& fleet){
     }
 }
 
+/*
+NOTE : "std::vector" Cannot Hold References (vector<Vehicle&>)
+   
+- In C++, references (&) are aliases, not reassignable objects in memory—so vector<Vehicle&> is illegal in C++.
+
+*/
+
+
 // test refuel mechanism
 void prepMotorizedVehicles(const vector<FuelVehicle*>& motorizedFleet, const vector<double>& amount){
     if(motorizedFleet.size() != amount.size()) return;
@@ -137,10 +145,10 @@ int main(){
     auto motorBike = make_unique<PetrolMotorcycle>(10, 25);
     auto eBike = make_unique<ElectricScooter>(80);
 
-    // `.get()` gives a non-owning Vehicle* pointer, while unique_ptr still handles cleanup!
+    // `.get()` gives a non-owning 'Vehicle*' pointer (aka OBSERVER POINTER), while 'unique_ptr' still handles cleanup!
     vector<Vehicle*> allVehicles;
-    allVehicles.push_back(bicycle.get());
-    allVehicles.push_back(motorBike.get());
+    allVehicles.push_back(bicycle.get()); // so we can't pass bicycle pointer itself here, cos once the function is over, this pointer is also deleted.
+    allVehicles.push_back(motorBike.get()); // Therefor to avoid that, we pass in the OBSERVER POINTER which we get using '.get()' method on unique pointer
     allVehicles.push_back(eBike.get());
 
     deployAllVehicles(allVehicles);
